@@ -9,21 +9,38 @@ import {
   deleteProduct
 } from "../controllers/products.controller.js";
 
+import {
+  createProductSchema,
+  updateProductSchema
+} from "../schemas/product.schema.js";
+
+import {
+  validateBody
+} from "../middleware/validate.middleware.js";
+
 const router = Router();
 
-// Read all products
+// GET all products
 router.get("/", getAllProducts);
 
-// Read one product
+// GET one product
 router.get("/:id", getProductById);
 
-// Create a product
-router.post("/", createProduct);
+// CREATE product
+router.post(
+  "/",
+  validateBody(createProductSchema),
+  createProduct
+);
 
-// Update a product
-router.patch("/:id", updateProduct);
+// UPDATE product
+router.patch(
+  "/:id",
+  validateBody(updateProductSchema),
+  updateProduct
+);
 
-// Delete a product
+// DELETE product
 router.delete("/:id", deleteProduct);
 
 export default router;

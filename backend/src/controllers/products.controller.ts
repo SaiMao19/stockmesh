@@ -122,49 +122,9 @@ export async function createProduct(
   res: Response
 ): Promise<void> {
 
-  const body: unknown = req.body;
-
-  if (!isObject(body)) {
-    res.status(400).json({
-      message: "Invalid product data"
-    });
-    return;
-  }
-
-  const { sku, name, category, price } = body;
-
-  // Validate text
-  if (
-    typeof sku !== "string" ||
-    typeof name !== "string" ||
-    typeof category !== "string" ||
-    !sku.trim() ||
-    !name.trim() ||
-    !category.trim() ||
-    sku.trim().length > 40 ||
-    name.trim().length > 150 ||
-    category.trim().length > 80
-  ) {
-    res.status(400).json({
-      message: "Invalid product data"
-    });
-    return;
-  }
-
-  // Validate price
-  if (!isValidPrice(price)) {
-    res.status(400).json({
-      message: "Invalid product price"
-    });
-    return;
-  }
-
-  const product: CreateProduct = {
-    sku: sku.trim(),
-    name: name.trim(),
-    category: category.trim(),
-    price
-  };
+  // Data has already been checked by Zod
+  const product =
+    res.locals.validatedBody as CreateProduct;
 
   try {
     const created = await createProductInDb(product);
@@ -187,7 +147,9 @@ export async function createProduct(
   }
 }
 
+
 // 4. UPDATE PRODUCT
+
 export async function updateProduct(
   req: Request,
   res: Response
@@ -202,84 +164,15 @@ export async function updateProduct(
     return;
   }
 
-  const body: unknown = req.body;
-
-  if (!isObject(body)) {
-    res.status(400).json({
-      message: "Invalid request body"
-    });
-    return;
-  }
-
-  const fields = Object.keys(body);
-  const allowed = ["name", "category", "price"];
-
-  if (
-    fields.length === 0 ||
-    fields.some(field => !allowed.includes(field))
-  ) {
-    res.status(400).json({
-      message: "Provide name, category or price"
-    });
-    return;
-  }
-
-  const { name, category, price } = body;
-
-  if (
-    name !== undefined &&
-    (
-      typeof name !== "string" ||
-      !name.trim() ||
-      name.trim().length > 150
-    )
-  ) {
-    res.status(400).json({
-      message: "Invalid product name"
-    });
-    return;
-  }
-
-  if (
-    category !== undefined &&
-    (
-      typeof category !== "string" ||
-      !category.trim() ||
-      category.trim().length > 80
-    )
-  ) {
-    res.status(400).json({
-      message: "Invalid category"
-    });
-    return;
-  }
-
-  if (
-    price !== undefined &&
-    !isValidPrice(price)
-  ) {
-    res.status(400).json({
-      message: "Invalid price"
-    });
-    return;
-  }
-
-  const update: UpdateProduct = {};
-
-  if (typeof name === "string") {
-    update.name = name.trim();
-  }
-
-  if (typeof category === "string") {
-    update.category = category.trim();
-  }
-
-  if (typeof price === "number") {
-    update.price = price;
-  }
+  // Validated by Zod middleware
+  const update =
+    res.locals.validatedBody as UpdateProduct;
 
   try {
-    const updated = await updateProductInDb(id, update);
+    const updated = await updateProductInDb(
+      id,
+      update
+    );
 
     if (updated === null) {
       res.status(404).json({
