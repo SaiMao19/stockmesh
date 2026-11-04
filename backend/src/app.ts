@@ -2,6 +2,7 @@
 import express from "express";
 import cors from "cors";
 import productsRouter from "./routes/products.routes.js";
+import inventoryRouter from "./routes/inventory.routes.js"
 
 const app = express();
 
@@ -28,5 +29,7 @@ app.get("/api/info", (_req, res) => {
 
 // Product API routes
 app.use("/api/products", productsRouter);
+
+app.use("/api/inventory", inventoryRouter)
 
 export default app;

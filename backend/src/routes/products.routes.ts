@@ -1,6 +1,7 @@
 
 import { Router } from "express";
 
+// Import controllers
 import {
   getAllProducts,
   getProductById,
@@ -9,21 +10,40 @@ import {
   deleteProduct
 } from "../controllers/products.controller.js";
 
+// Import Zod schemas
+import {
+  createProductSchema,
+  updateProductSchema
+} from "../schemas/product.schema.js";
+
+// Import validation middleware
+import {
+  validateBody
+} from "../middleware/validate.middleware.js";
+
 const router = Router();
 
-// Read all products
+// 1. GET all products
 router.get("/", getAllProducts);
 
-// Read one product
+// 2. GET product by ID
 router.get("/:id", getProductById);
 
-// Create a product
-router.post("/", createProduct);
+// 3. POST - Create product
+router.post(
+  "/",
+  validateBody(createProductSchema),
+  createProduct
+);
 
-// Update a product
-router.patch("/:id", updateProduct);
+// 4. PATCH - Update product
+router.patch(
+  "/:id",
+  validateBody(updateProductSchema),
+  updateProduct
+);
 
-// Delete a product
+// 5. DELETE product
 router.delete("/:id", deleteProduct);
 
 export default router;
